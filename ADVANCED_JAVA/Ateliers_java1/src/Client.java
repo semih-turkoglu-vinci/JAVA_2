@@ -8,7 +8,7 @@ public class Client implements Iterable<Commande>{
     private int numero;
     private String nom, prenom, telephone;
     private Commande commandeEnCours;
-    private ArrayList<Commande> commandesPassees;
+    private ArrayList<Commande> commandesPassees = new ArrayList<>();
 
     public Client(String nom, String prenom, String telephone){
         this.nom=nom;
