@@ -50,7 +50,16 @@ public class Commande implements Iterable<LigneDeCommande>{
     }
 
     public boolean retirer(Pizza pizza, int quantite){
-        return false;
+        if (this.client == null || this != client.getCommandeEnCours()) return false;
+        boolean verif = false;
+        for (LigneDeCommande ligne : lignesCommande) {
+            if (ligne.getPizza().equals(pizza)) {
+                verif = true;
+                if (quantite < ligne.getQuantite()) {
+                    ligne.setQuantite(ligne.getQuantite() - quantite);
+                }
+            }
+        }
     }
     
 
