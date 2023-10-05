@@ -1,10 +1,17 @@
 package employee;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class EmployeeManagement {
@@ -17,7 +24,15 @@ public class EmployeeManagement {
     private static final Supplier<Stream<String>> supplier = () -> {
         //TODO: retourner un stream créer à partir du fichier. Aidez vous de la p.15 : "Créer des streams"
         //      En cas d'IOException, vous devez lancer une UncheckedIOException
-        return null;
+        Stream<String> lignes;
+        try{
+            lignes= Files.lines(Paths.get("./resources/streamingvf.csv"), Charset.defaultCharset());
+        }
+        catch (IOException e) {
+            throw new UncheckedIOException(e);
+            }
+// TODO: handle exception
+        return lignes;
     };
 
     public static void main(String[] args) {
@@ -42,7 +57,7 @@ public class EmployeeManagement {
      */
     private static String firstLine() {
         //TODO
-        return null;
+        return supplier.get().findFirst().orElse("");
     }
 
 
@@ -53,9 +68,11 @@ public class EmployeeManagement {
      */
     private static List<String> filteredLastnames() {
         Predicate<String> predicate = s -> s.length() > 8;
+       // Predicate<String> predicate1 = s -> s.startsWith("K") || s.startsWith("O");
+        predicate = predicate.and(s -> s.contains("O") || s.contains("K"));
         //TODO: combiner predicate avec d'autres  (p.7 : "Predicate"), puis le passer en paramètre de
         //      de l'appel filter() pour filtrer les résultats.
-        return null;
+        return supplier.get().map(Employee::new).map(Employee::getLastname).filter(predicate).collect(Collectors.toList());
     }
 
     /**
@@ -63,6 +80,7 @@ public class EmployeeManagement {
      * @return une liste contenant le nombre d'occurrences de 'e' pour chaque prénom d'employé.
      */
     private static List<Integer> occurencesOfE() {
+        BiFunction<Employee,Character,Integer> bifonction = (employee, character) -> (int)employee.getFirstname().chars().filter(value -> value == character).count();
         //TODO: Construire une BiFunction qui prend comme premier type de paramètre un Employee,
         //      comme deuxième type de paramètre un Character, et qui prend Integer comme type de retour.
         //      Cette BiFunction doit retourner le nombre d'occurrences du char passé en paramètre dans le
