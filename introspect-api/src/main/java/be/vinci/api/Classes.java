@@ -1,5 +1,6 @@
 package be.vinci.api;
 
+import be.vinci.classes.OrderLine;
 import be.vinci.services.ClassAnalyzer;
 import be.vinci.classes.User;
 import jakarta.json.JsonStructure;
@@ -16,7 +17,11 @@ public class Classes {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public JsonStructure getClassInfo(@QueryParam("classname") String classname) {
-        ClassAnalyzer analyzer = new ClassAnalyzer(User.class);
-        return analyzer.getFullInfo();
+        try {
+            ClassAnalyzer analyzer = new ClassAnalyzer(Class.forName ("be.vinci.classes."+classname));
+            return analyzer.getFullInfo();
+        } catch (ClassNotFoundException e) {
+            throw new WebApplicationException("Classe introuvable", 404);
+        }
     }
 }

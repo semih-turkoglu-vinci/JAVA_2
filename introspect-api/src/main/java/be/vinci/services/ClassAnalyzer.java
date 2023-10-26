@@ -5,6 +5,8 @@ import jakarta.json.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Parameter;
+import java.util.Arrays;
 import java.util.logging.Logger;
 
 /**
@@ -28,6 +30,7 @@ public class ClassAnalyzer {
         JsonObjectBuilder objectBuilder = Json.createObjectBuilder();
         objectBuilder.add("name", aClass.getSimpleName());
         objectBuilder.add("fields", getFields());
+        objectBuilder.add("methods",getMethods());
         return objectBuilder.build();
     }
 
@@ -44,6 +47,8 @@ public class ClassAnalyzer {
     public JsonObject getField(Field f) {
         JsonObjectBuilder objectBuilder = Json.createObjectBuilder();
         // TODO add missing info
+        objectBuilder.add("name", f.getName());
+        objectBuilder.add("type", f.getType().getSimpleName());
         objectBuilder.add("visibility", getFieldVisibility(f));
         objectBuilder.add("isStatic", isFieldStatic(f));
         return objectBuilder.build();
@@ -58,6 +63,9 @@ public class ClassAnalyzer {
     public JsonArray getFields() {
         JsonArrayBuilder arrayBuilder = Json.createArrayBuilder();
         // TODO Add all fields descriptions to array (use the getField() method above)
+        for (Field f: aClass.getDeclaredFields()) {
+            arrayBuilder.add(getField(f));
+        }
         return arrayBuilder.build();
     }
 
@@ -68,6 +76,8 @@ public class ClassAnalyzer {
      * @return true if the field is static, false else
      */
     private boolean isFieldStatic(Field f) {
+        if (Modifier.isStatic(f.getModifiers()))
+            return true;
         return false; // TODO
     }
 
@@ -78,7 +88,56 @@ public class ClassAnalyzer {
      * @return the visibility (public, private, protected, package)
      */
     private String getFieldVisibility(Field f) {
+        if (Modifier.isPublic(f.getModifiers()))
+            return "public";
+        if (Modifier.isPrivate(f.getModifiers()))
+            return "private";
+        if (Modifier.isProtected(f.getModifiers()))
+            return "protected";
         return null; // TODO
+    }
+    public JsonObject getMethod(Method m) {
+        JsonObjectBuilder objectBuilder = Json.createObjectBuilder();
+        objectBuilder.add("name",m.getName());
+        objectBuilder.add("returnType",m.getReturnType().getSimpleName());
+        objectBuilder.add("parameters", getParameters(m));
+        objectBuilder.add("visibility",getMethodVisibility(m));
+        objectBuilder.add("isStatic",isMethodStatic(m));
+        objectBuilder.add("isAbstract",isMethodAbstract(m));
+        return objectBuilder.build();
+    }
+    public JsonArray getMethods(){
+        JsonArrayBuilder arrayBuilder = Json.createArrayBuilder();
+        for (Method m: aClass.getDeclaredMethods()) {
+            arrayBuilder.add(getMethod(m));
+        }
+        return arrayBuilder.build();
+    }
+    public JsonArray getParameters(Method m){
+        JsonArrayBuilder arrayBuilder = Json.createArrayBuilder();
+        for (Class p: m.getParameterTypes()) {
+            arrayBuilder.add(p.getSimpleName());
+        }
+        return arrayBuilder.build();
+    }
+    private String getMethodVisibility(Method m){
+        if (Modifier.isPublic(m.getModifiers()))
+            return "public";
+        if (Modifier.isPrivate(m.getModifiers()))
+            return "private";
+        if (Modifier.isProtected(m.getModifiers()))
+            return "protected";
+        return null;
+    }
+    private boolean isMethodStatic(Method m){
+        if (Modifier.isStatic(m.getModifiers()))
+            return true;
+        return false;
+    }
+    private boolean isMethodAbstract(Method m){
+        if (Modifier.isAbstract(m.getModifiers()))
+            return true;
+        return false;
     }
 
 }
