@@ -1,7 +1,7 @@
 package be.vinci.aj.domaine;
 
-public class QueryFactory {
-    public static Query getQuery(){
+public interface QueryFactory {
+    static Query getQuery() {
         return new QueryImpl();
     }
 }
